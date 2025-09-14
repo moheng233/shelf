@@ -29,12 +29,27 @@ import 'package:shelf_router/src/router_entry.dart' // ignore: implementation_im
     show RouterEntry;
 import 'package:source_gen/source_gen.dart' as g;
 
+const shelfRouterName = 'package:shelf_router/shelf_router.dart';
+const shelfName = 'package:shelf/shelf.dart';
+
 // Type checkers that we need later
-const _routeType = g.TypeChecker.fromRuntime(shelf_router.Route);
-const _routerType = g.TypeChecker.fromRuntime(shelf_router.Router);
-const _responseType = g.TypeChecker.fromRuntime(shelf.Response);
-const _requestType = g.TypeChecker.fromRuntime(shelf.Request);
-const _stringType = g.TypeChecker.fromRuntime(String);
+const _routeType = g.TypeChecker.typeNamed(
+  shelf_router.Route,
+  inPackage: shelfRouterName,
+);
+const _routerType = g.TypeChecker.typeNamed(
+  shelf_router.Router,
+  inPackage: shelfRouterName,
+);
+const _responseType = g.TypeChecker.typeNamed(
+  shelf.Response,
+  inPackage: shelfName,
+);
+const _requestType = g.TypeChecker.typeNamed(
+  shelf.Request,
+  inPackage: shelfName,
+);
+const _stringType = g.TypeChecker.typeNamed(String, inSdk: true);
 
 /// A representation of a handler that was annotated with [shelf_router.Route].
 class _Handler {
