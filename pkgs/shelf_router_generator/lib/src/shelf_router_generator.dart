@@ -17,8 +17,8 @@
 
 import 'dart:async' show Future;
 
-import 'package:analyzer/dart/element/element2.dart'
-    show ClassElement2, ElementKind, ExecutableElement2;
+import 'package:analyzer/dart/element/element.dart'
+    show ClassElement, ElementKind, ExecutableElement;
 import 'package:analyzer/dart/element/type.dart' show ParameterizedType;
 import 'package:build/build.dart' show BuildStep, log;
 import 'package:code_builder/code_builder.dart' as code;
@@ -33,36 +33,24 @@ const shelfRouterName = 'package:shelf_router/shelf_router.dart';
 const shelfName = 'package:shelf/shelf.dart';
 
 // Type checkers that we need later
-const _routeType = g.TypeChecker.typeNamed(
-  shelf_router.Route,
-  inPackage: shelfRouterName,
-);
-const _routerType = g.TypeChecker.typeNamed(
-  shelf_router.Router,
-  inPackage: shelfRouterName,
-);
-const _responseType = g.TypeChecker.typeNamed(
-  shelf.Response,
-  inPackage: shelfName,
-);
-const _requestType = g.TypeChecker.typeNamed(
-  shelf.Request,
-  inPackage: shelfName,
-);
+const _routeType = g.TypeChecker.typeNamed(shelf_router.Route);
+const _routerType = g.TypeChecker.typeNamed(shelf_router.Router);
+const _responseType = g.TypeChecker.typeNamed(shelf.Response);
+const _requestType = g.TypeChecker.typeNamed(shelf.Request);
 const _stringType = g.TypeChecker.typeNamed(String, inSdk: true);
 
 /// A representation of a handler that was annotated with [shelf_router.Route].
 class _Handler {
   final String verb, route;
-  final ExecutableElement2 element;
+  final ExecutableElement element;
 
   _Handler(this.verb, this.route, this.element);
 }
 
 /// Find members of a class annotated with [shelf_router.Route].
-List<ExecutableElement2> getAnnotatedElementsOrderBySourceOffset(
-  ClassElement2 cls,
-) => <ExecutableElement2>[
+List<ExecutableElement> getAnnotatedElementsOrderBySourceOffset(
+  ClassElement cls,
+) => <ExecutableElement>[
   ...cls.methods2.where(_routeType.hasAnnotationOfExact),
   ...cls.getters2.where(_routeType.hasAnnotationOfExact),
 ]..sort(
@@ -73,7 +61,7 @@ List<ExecutableElement2> getAnnotatedElementsOrderBySourceOffset(
 /// Generate a `_$<className>Router(<className> service)` method that returns a
 /// [shelf_router.Router] configured based on annotated handlers.
 code.Method _buildRouterMethod({
-  required ClassElement2 classElement,
+  required ClassElement classElement,
   required List<_Handler> handlers,
 }) => code.Method(
   (b) =>
@@ -138,7 +126,8 @@ class ShelfRouterGenerator extends g.Generator {
   Future<String?> generate(g.LibraryReader library, BuildStep buildStep) async {
     // Create a map from ClassElement to list of annotated elements sorted by
     // offset in source code, this is not type checked yet.
-    final classes = <ClassElement2, List<_Handler>>{};
+    final classes = <ClassElement, List<_Handler>>{};
+
     for (final cls in library.classes) {
       final elements = getAnnotatedElementsOrderBySourceOffset(cls);
       if (elements.isEmpty) {
